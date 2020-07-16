@@ -53,4 +53,4 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    extract_vectors(args.in_file, args.out_file, args.transformer, args.gpu, args.name)
+    extract_vectors(args.in_file, args.out_dir, args.transformer, args.gpu, args.name)
