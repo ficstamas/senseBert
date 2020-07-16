@@ -71,7 +71,8 @@ class SenseBert:
         # tokenizing all inputs
         all_token_ids = []
         for inp in inputs:
-            tokens = [self.tokenizer.start_sym] + self.tokenizer.tokenize(inp)[0] + [self.tokenizer.end_sym]
+            tokens = [self.tokenizer.start_sym] + [self.tokenizer.tokenize(word)[0][0] for word in inp] + [self.tokenizer.end_sym]
+            assert len(tokens) - 2 == inp.__len__()
             assert len(tokens) <= self.max_seq_length
             all_token_ids.append(self.tokenizer.convert_tokens_to_ids(tokens))
 
