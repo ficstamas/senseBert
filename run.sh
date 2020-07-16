@@ -1,6 +1,6 @@
 #!/bin/bash
 
-transformers=("sensebert-base-uncased" "sensebert-large-uncased")
+transformers=("/data/ficstamas/sense_bert/sensebert-base-uncased" "/data/ficstamas/sense_bert/sensebert-large-uncased")
 semcor="/data/berend/WSD_Evaluation_Framework/Training_Corpora/SemCor/semcor.data.xml"
 ALL="/data/berend/WSD_Evaluation_Framework/Evaluation_Datasets/ALL/ALL.data.xml"
 
