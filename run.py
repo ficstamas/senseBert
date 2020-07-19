@@ -10,7 +10,7 @@ import argparse
 def extract_vectors(input_file, output_path, model, gpu, fname):
     reader = SemcorReader()
 
-    with tf.Session() as session:
+    with tf.Session(config=tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)) as session:
         sensebert_model = SenseBert(model, session=session)  # or sensebert-large-uncased
         # summ_writer = tf.summary.FileWriter(os.path.join('summaries', 'first'), session.graph)
         layer_tensors = []
@@ -28,8 +28,9 @@ def extract_vectors(input_file, output_path, model, gpu, fname):
             for seq in r:
                 input_ids, input_mask = sensebert_model.tokenize([seq])
                 layer = session.graph.get_tensor_by_name(f"{layer_tensor}:0")
-                vector = layer.eval(feed_dict={sensebert_model.model.input_ids: input_ids,
-                                               sensebert_model.model.input_mask: input_mask}, session=session)
+                with tf.device(f'/device:XLA_GPU:{gpu}'):
+                    vector = layer.eval(feed_dict={sensebert_model.model.input_ids: input_ids,
+                                                   sensebert_model.model.input_mask: input_mask}, session=session)
 
                 fltr = np.zeros(input_ids[0].__len__(), dtype=np.bool)
                 fltr[np.array(input_ids[0]) == 101] = True
@@ -48,7 +49,7 @@ def extract_vectors(input_file, output_path, model, gpu, fname):
             path = os.path.join(output_path, name)
             if not os.path.exists(output_path):
                 os.makedirs(output_path, exist_ok=True)
-            np.save(path)
+            np.save(path, embedding)
             print("layer saved!")
 
 
