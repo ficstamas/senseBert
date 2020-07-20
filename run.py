@@ -19,7 +19,8 @@ def extract_vectors(input_file, output_path, model, gpu, fname):
             if re.match(reg, n.name):
                 layer_tensors.append(n.name)
         print("Evaluating layers...")
-        for layer_id, layer_tensor in enumerate(layer_tensors[1:]):
+        # TODO limited to the last layer
+        for layer_id, layer_tensor in enumerate([layer_tensors[-1]]):
             print(f"Layer {layer_id+1}/{layer_tensors[1:].__len__()}")
             embedding = None
             r = reader.read_sequences(input_file)
@@ -45,7 +46,7 @@ def extract_vectors(input_file, output_path, model, gpu, fname):
                     print_limit += 10000
 
             print("Saving layer...")
-            name = f"{fname}.{model}.layer_{layer_id}.npy"
+            name = f"{fname}.{model.split('/')[-1]}.layer_{layer_id}.npy"
             path = os.path.join(output_path, name)
             if not os.path.exists(output_path):
                 os.makedirs(output_path, exist_ok=True)
