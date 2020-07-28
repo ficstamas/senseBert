@@ -67,7 +67,7 @@ if __name__ == '__main__':
     parser.add_argument('--in_file', default='/data/berend/WSD_Evaluation_Framework/Training_Corpora/SemCor/semcor.data.xml')
     parser.add_argument('--out_dir', default='/data/ficstamas/representations/')
     parser.add_argument('--gpu', type=int, default=0)
-    parser.add_argument('--soft_placement', type=bool, action="store_true")
+    parser.add_argument('--soft_placement', action="store_true")
     parser.add_argument('--name', type=str)
 
     args = parser.parse_args()
