@@ -7,17 +7,15 @@ import os
 import argparse
 
 
-def extract_vectors(input_file, output_path, model, gpu, fname, soft_placement):
+def extract_vectors(input_file, output_path, model, gpu, fname, soft_placement, layer):
     reader = SemcorReader()
 
     device = f'/device:CPU:0'
 
     print(f"Trying to place on device: {device} with soft placement {soft_placement}")
-
     with tf.Session(config=tf.ConfigProto(allow_soft_placement=soft_placement, log_device_placement=True)) as session:
         with tf.device(device):
             sensebert_model = SenseBert(model, session=session)  # or sensebert-large-uncased
-        # summ_writer = tf.summary.FileWriter(os.path.join('summaries', 'first'), session.graph)
 
         layer_tensors = []
         reg = "^bert\/encoder\/Reshape_\d*$"
@@ -31,8 +29,9 @@ def extract_vectors(input_file, output_path, model, gpu, fname, soft_placement):
             os.makedirs(output_path, exist_ok=True)
 
         layer_id = 0
-        for layer_tensor in reversed(layer_tensors[1:]):
-            print(f"Layer {layer_tensors.__len__() - layer_id - 1}/{layer_tensors[1:].__len__()}")
+        for layer_tensor in [layer_tensors[1:][layer-1]]:
+            print(f"Layer {layer}")
+
             embedding = None
             r = reader.read_sequences(input_file)
 
@@ -56,7 +55,7 @@ def extract_vectors(input_file, output_path, model, gpu, fname, soft_placement):
                     print_limit += 10000
 
             print("Saving layer...")
-            name = f"{fname}.{model.split('/')[-1]}.layer_{layer_tensors.__len__() - layer_id - 1}.npy"
+            name = f"{fname}.{model.split('/')[-1]}.layer_{layer}.npy"
             path = os.path.join(output_path, name)
             np.save(path, embedding)
             print("layer saved!")
@@ -69,10 +68,11 @@ if __name__ == '__main__':
     parser.add_argument('--in_file',
                         default='/data/berend/WSD_Evaluation_Framework/Training_Corpora/SemCor/semcor.data.xml')
     parser.add_argument('--out_dir', default='/data/ficstamas/representations/')
+    parser.add_argument('--layer', type=int, default=1)
     parser.add_argument('--gpu', type=int, default=0)
     parser.add_argument('--soft_placement', action="store_true")
     parser.add_argument('--name', type=str)
 
     args = parser.parse_args()
-    extract_vectors(args.in_file, args.out_dir, args.transformer, args.gpu, args.name, args.soft_placement)
+    extract_vectors(args.in_file, args.out_dir, args.transformer, args.gpu, args.name, args.soft_placement, args.layer)
 
